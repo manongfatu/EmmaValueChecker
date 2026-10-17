@@ -89,6 +89,10 @@
             <span class="step">01</span>
             <h2 id="profileTitle">Profile</h2>
             <span class="saved" id="savedIndicator" aria-live="polite">Saved</span>
+            <button type="button" class="collapse-btn" id="profileToggle" aria-expanded="true" aria-controls="profileForm">
+              <span class="collapse-btn__summary" id="profileSummary"></span>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+            </button>
           </header>
 
           <form id="profileForm" class="form form--profile" autocomplete="off">
@@ -122,6 +126,7 @@
             <span class="card__meta" id="catMeta"></span>
           </header>
 
+          <div class="catalog__tools">
           <div class="catalog__filters">
             <label class="search">
               <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>
@@ -134,14 +139,15 @@
             </div>
           </div>
           <div class="chips chips--scroll" id="typeChips" role="radiogroup" aria-label="Filter by category"></div>
+          </div>
 
           <div class="catalog__table-wrap">
             <table class="cat-table">
               <thead>
                 <tr>
                   <th scope="col">Brand · Model</th>
-                  <th scope="col">From</th>
-                  <th scope="col">Till</th>
+                  <th scope="col" class="c-from">From</th>
+                  <th scope="col" class="c-till">Till</th>
                   <th scope="col">Description</th>
                   <th scope="col" class="num">ASIA value</th>
                   <th scope="col" class="num">Of</th>
@@ -160,7 +166,8 @@
       </div>
 
       <!-- ============ RIGHT: SHEET ============ -->
-      <section class="col col--sheet card card--sheet" aria-labelledby="sheetTitle">
+      <section class="col col--sheet card card--sheet" id="sheetPanel" aria-labelledby="sheetTitle">
+        <div class="drawer-handle" aria-hidden="true"></div>
         <header class="card__head">
           <span class="step">03</span>
           <h2 id="sheetTitle">Value sheet</h2>
@@ -168,6 +175,9 @@
             <button class="btn btn--dark" type="button" id="downloadBtn">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
               <span>Save as image</span>
+            </button>
+            <button class="icon-btn sheet-close" id="closeSheet" type="button" aria-label="Close value sheet">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
             </button>
           </div>
         </header>
@@ -185,6 +195,18 @@
   <footer class="site-foot">
     <p>Values come from the EMMA ASIA value database and can't be edited here. Your profile is saved in this browser only. Always confirm against the official EMMA rules before judging.</p>
   </footer>
+
+  <div class="sheetbar" id="sheetBar">
+    <div class="sheetbar__info">
+      <span class="sheetbar__label" id="barCount">0 parts</span>
+      <strong class="sheetbar__total" id="barTotal">0</strong>
+    </div>
+    <button class="btn sheetbar__btn" id="openSheet" type="button" aria-controls="sheetPanel" aria-expanded="false">
+      View sheet
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg>
+    </button>
+  </div>
+  <div class="backdrop" id="backdrop" hidden></div>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
   <datalist id="carBrands"></datalist>

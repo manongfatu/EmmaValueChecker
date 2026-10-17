@@ -226,6 +226,7 @@
           <span class="c-brand">${esc(p.brand)}</span>
           <span class="c-model">${esc(p.model)}</span>
           <span class="c-type">${esc(catLabel(p.type))}</span>
+          ${p.from || p.till ? `<span class="c-span">${esc(p.from || "…")}–${esc(p.till || "")}</span>` : ""}
         </td>
         <td class="c-from" data-label="From">${esc(p.from) || "—"}</td>
         <td class="c-till" data-label="Till">${esc(p.till) || "—"}</td>
@@ -279,6 +280,8 @@
     else prof.parts.push({ pid, qty: 1, snap: snapOf(p) });
     save();
     toast(`${p.brand} ${p.model} added${line ? ` · ×${line.qty}` : ""}`);
+    const bar = $("#sheetBar");
+    bar.classList.remove("is-pulse"); void bar.offsetWidth; bar.classList.add("is-pulse");
     renderHero(); renderSheet(); renderCatalog();
   }
   const snapOf = (p) => ({ brand: p.brand, model: p.model, type: p.type, description: p.description, value: p.value, year: p.year });
@@ -318,6 +321,10 @@
     $("#heroOwner").textContent = name ? name + (p.team ? " — " + p.team : "") : (p.team || "Add your name and team below");
     $("#heroClass").textContent = (p.cls || "Sound Quality") + " · Value Sheet";
     $("#heroTotal").textContent = fmt(t);
+    const pieces = p.parts.reduce((s, l) => s + num(l.qty), 0);
+    $("#barTotal").textContent = fmt(t);
+    $("#barCount").textContent = `${pieces} part${pieces === 1 ? "" : "s"} · total`;
+    renderProfileSummary();
     $("#heroCount").textContent = p.parts.reduce((s, l) => s + num(l.qty), 0);
     $("#heroCats").textContent = new Set(p.parts.map((l) => resolve(l).type)).size;
 
@@ -423,6 +430,8 @@
 
   function switchProfile(id) {
     state.activeId = id;
+    const p = state.profiles[id];
+    if (p && !(p.firstName && p.carBrand)) setProfileCollapsed(false);
     save();
     renderAll();
   }
@@ -699,6 +708,57 @@
     }
   }
 
+  /* ---------- Mobile / tablet: sheet drawer + collapsible profile ---------- */
+  const compactMQ = matchMedia("(max-width: 960px)");
+
+  function setSheetOpen(open) {
+    const panel = $("#sheetPanel");
+    panel.classList.toggle("is-open", open);
+    $("#backdrop").hidden = !open;
+    document.body.classList.toggle("drawer-open", open);
+    $("#openSheet").setAttribute("aria-expanded", String(open));
+    if (open) panel.scrollTop = 0;
+  }
+
+  function bindDrawer() {
+    $("#openSheet").addEventListener("click", () => setSheetOpen(true));
+    $("#closeSheet").addEventListener("click", () => setSheetOpen(false));
+    $("#backdrop").addEventListener("click", () => setSheetOpen(false));
+    document.addEventListener("keydown", (e) => { if (e.key === "Escape") setSheetOpen(false); });
+    compactMQ.addEventListener("change", (e) => { if (!e.matches) setSheetOpen(false); });
+
+    // swipe down on the handle/header to close
+    let startY = null;
+    const head = $("#sheetPanel .card__head");
+    const handle = $("#sheetPanel .drawer-handle");
+    [head, handle].forEach((el) => {
+      el.addEventListener("touchstart", (e) => { startY = e.touches[0].clientY; }, { passive: true });
+      el.addEventListener("touchend", (e) => {
+        if (startY !== null && e.changedTouches[0].clientY - startY > 60) setSheetOpen(false);
+        startY = null;
+      });
+    });
+  }
+
+  function renderProfileSummary() {
+    const p = active();
+    const name = [p.firstName, p.lastName].filter(Boolean).join(" ");
+    const el = $("#profileSummary");
+    if (el) el.textContent = [name, carTitle(p) !== "Your car" ? carTitle(p) : ""].filter(Boolean).join(" · ");
+  }
+
+  function setProfileCollapsed(collapsed) {
+    $("#profileForm").closest(".card").classList.toggle("is-collapsed", collapsed);
+    $("#profileToggle").setAttribute("aria-expanded", String(!collapsed));
+  }
+
+  function bindProfileToggle() {
+    $("#profileToggle").addEventListener("click", () => {
+      const card = $("#profileForm").closest(".card");
+      setProfileCollapsed(!card.classList.contains("is-collapsed"));
+    });
+  }
+
   /* ---------- Init ---------- */
   async function init() {
     fillStatic();
@@ -707,6 +767,10 @@
     bindSheet();
     bindProfiles();
     $("#downloadBtn").addEventListener("click", downloadImage);
+    bindDrawer();
+    bindProfileToggle();
+    // On phones/tablets, start with the profile folded away once it's filled in
+    if (compactMQ.matches && active().firstName && active().carBrand) setProfileCollapsed(true);
     renderProfileSelect(); renderProfileForm(); renderHero(); renderSheet();
     $("#catBody").innerHTML = `<tr><td colspan="7" class="loading">Loading parts database…</td></tr>`;
     await loadCatalog();
