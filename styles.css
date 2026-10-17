@@ -498,3 +498,18 @@ input::-webkit-calendar-picker-indicator { opacity: 0; }
   .col--sheet .sheet { flex: 1; min-height: 0; max-height: none; }
   .catalog__table-wrap { max-height: max(360px, calc(100vh - 260px)); }
 }
+
+/* Footer disclaimer */
+.disclaimer {
+  border: 1px solid var(--line-strong); border-left: 3px solid var(--accent);
+  background: var(--card); border-radius: var(--radius-lg);
+  padding: 18px 22px; color: var(--ink-2); font-size: 14px; line-height: 1.6;
+}
+.disclaimer p { margin: 0; }
+.disclaimer__title {
+  margin-bottom: 6px !important; color: var(--accent);
+  font: 600 11px/1 var(--f-display); font-stretch: 112%; letter-spacing: .2em; text-transform: uppercase;
+}
+.disclaimer strong { color: var(--ink); }
+.disclaimer a { color: var(--ink); text-underline-offset: 3px; }
+.site-foot__small { margin: 14px 0 0; }

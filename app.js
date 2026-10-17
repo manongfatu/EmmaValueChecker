@@ -326,7 +326,7 @@
     $("#barCount").textContent = `${pieces} part${pieces === 1 ? "" : "s"} · total`;
     renderProfileSummary();
     $("#heroCount").textContent = p.parts.reduce((s, l) => s + num(l.qty), 0);
-    $("#heroCats").textContent = new Set(p.parts.map((l) => resolve(l).type)).size;
+    $("#heroBrands").textContent = new Set(p.parts.map((l) => resolve(l).brand)).size;
 
     const limit = classLimit(p.cls);
     const box = $("#limitBox");
@@ -553,7 +553,7 @@
 
     const lines = p.parts.map((l) => ({ l, r: resolve(l) }));
     const groups = CATEGORIES.map((c) => ({ c, items: lines.filter((x) => x.r.type === c.id) })).filter((g) => g.items.length);
-    const ROW = 64, GROUP_HEAD = 58, HEADER = 150, HERO = 300, TABLE_HEAD = 44, TOTAL = 150, FOOT = 80;
+    const ROW = 64, GROUP_HEAD = 58, HEADER = 150, HERO = 300, TABLE_HEAD = 44, TOTAL = 150, FOOT = 100;
     const rowsH = groups.reduce((s, g) => s + GROUP_HEAD + g.items.length * ROW, 0) || 90;
     const H = HEADER + HERO + TABLE_HEAD + rowsH + 40 + TOTAL + FOOT;
 
@@ -600,7 +600,7 @@
     const colW = (W - PAD * 2) / 3;
     const limit = classLimit(p.cls);
     [["COMPONENTS", String(lines.reduce((s, x) => s + num(x.l.qty), 0))],
-     ["CATEGORIES", String(groups.length)],
+     ["BRANDS", String(new Set(lines.map((x) => x.r.brand)).size)],
      ["CLASS LIMIT", limit ? fmt(limit) : "—"]].forEach(([k, v], i) => {
       const x = PAD + colW * i;
       ctx.fillStyle = MUTED; ctx.font = `500 12px ${DISP}`; ctx.fillText(k, x, y);
@@ -676,7 +676,10 @@
 
     y += TOTAL + 10;
     ctx.fillStyle = MUTED; ctx.font = `400 12.5px ${BODY}`;
-    ctx.fillText("Values from the EMMA ASIA value database" + (catalogMeta ? ` (${catalogMeta.replace(/^Values /, "")})` : "") + ". Subject to verification by EMMA judges.", PAD, y);
+    ctx.fillStyle = INK; ctx.font = `600 12.5px ${BODY}`;
+    ctx.fillText("UNOFFICIAL CHECK — not the official EMMA value sheet. For competitors to check class requirements only.", PAD, y);
+    ctx.fillStyle = MUTED; ctx.font = `400 12.5px ${BODY}`;
+    ctx.fillText("Values from the EMMA ASIA value database" + (catalogMeta ? ` (${catalogMeta.replace(/^Values /, "")})` : "") + ". EMMA judges have the final say.", PAD, y + 22);
 
     return cv;
   }
