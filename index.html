@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>EMMA Value Sheet</title>
+  <meta name="description" content="Build your EMMA car audio value sheet: pick your SQ components from the value database, see the total system value, and save it as an image." />
+  <meta name="theme-color" content="#f4f3f0" />
+  <link rel="icon" href="assets/emma-logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- ============ TOP BAR ============ -->
+  <header class="topbar">
+    <div class="topbar__inner">
+      <a class="brand" href="./" aria-label="EMMA Value Sheet home">
+        <img class="brand__logo" src="assets/emma-logo.png" alt="EMMA" onerror="this.hidden=true;this.nextElementSibling.hidden=false" />
+        <span class="brand__fallback" hidden>EMMA</span>
+        <span class="brand__divider" aria-hidden="true"></span>
+        <span class="brand__title">Value Sheet</span>
+      </a>
+
+      <div class="profiles">
+        <label class="sr-only" for="profileSelect">Saved profiles</label>
+        <div class="select-wrap select-wrap--quiet">
+          <select id="profileSelect"></select>
+        </div>
+        <button class="icon-btn" id="newProfileBtn" type="button" title="New profile" aria-label="New profile">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>
+        </button>
+        <div class="menu">
+          <button class="icon-btn" id="menuBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-label="Profile options">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="5" cy="12" r="1.4"/><circle cx="12" cy="12" r="1.4"/><circle cx="19" cy="12" r="1.4"/></svg>
+          </button>
+          <div class="menu__panel" id="menuPanel" role="menu" hidden>
+            <button role="menuitem" type="button" data-action="duplicate">Duplicate profile</button>
+            <button role="menuitem" type="button" data-action="export">Export data (.json)</button>
+            <button role="menuitem" type="button" data-action="import">Import data (.json)</button>
+            <hr />
+            <button role="menuitem" type="button" data-action="delete" class="danger">Delete profile</button>
+          </div>
+        </div>
+        <input type="file" id="importInput" accept="application/json,.json" hidden />
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ============ HERO ============ -->
+    <section class="hero" aria-labelledby="heroCar">
+      <div class="hero__inner">
+        <p class="eyebrow" id="heroClass">Sound Quality · Value Sheet</p>
+        <h1 class="hero__car" id="heroCar">Your Car</h1>
+        <p class="hero__owner" id="heroOwner">Add your name and team below</p>
+
+        <div class="hero__stats">
+          <div class="stat stat--main">
+            <span class="stat__label">Total system value</span>
+            <span class="stat__value" id="heroTotal">0</span>
+          </div>
+          <div class="stat">
+            <span class="stat__label">Components</span>
+            <span class="stat__value stat__value--sm" id="heroCount">0</span>
+          </div>
+          <div class="stat">
+            <span class="stat__label">Categories</span>
+            <span class="stat__value stat__value--sm" id="heroCats">0</span>
+          </div>
+        </div>
+
+        <div class="limit" id="limitBox" hidden>
+          <div class="limit__head">
+            <span id="limitLabel">Class limit</span>
+            <span id="limitText"></span>
+          </div>
+          <div class="limit__bar"><span id="limitFill"></span></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="layout">
+      <!-- ============ LEFT: PROFILE + CATALOG ============ -->
+      <div class="col col--input">
+        <section class="card" aria-labelledby="profileTitle">
+          <header class="card__head">
+            <span class="step">01</span>
+            <h2 id="profileTitle">Profile</h2>
+            <span class="saved" id="savedIndicator" aria-live="polite">Saved</span>
+          </header>
+
+          <form id="profileForm" class="form form--profile" autocomplete="off">
+            <fieldset>
+              <legend>Competitor</legend>
+              <div class="row row--3col">
+                <label class="field"><span>First name</span><input name="firstName" type="text" placeholder="Juan" /></label>
+                <label class="field"><span>Surname</span><input name="lastName" type="text" placeholder="Dela Cruz" /></label>
+                <label class="field"><span>Team name</span><input name="team" type="text" placeholder="Team / shop / club" /></label>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend>Vehicle</legend>
+              <div class="row row--3col">
+                <label class="field"><span>Car brand</span><input name="carBrand" type="text" list="carBrands" placeholder="Porsche" /></label>
+                <label class="field"><span>Model</span><input name="carModel" type="text" placeholder="911 Carrera" /></label>
+                <label class="field"><span>Model year</span><input name="carYear" type="number" inputmode="numeric" min="1950" max="2100" placeholder="2022" /></label>
+              </div>
+              <label class="field"><span>Competition class</span>
+                <div class="select-wrap"><select name="cls" id="classSelect"></select></div>
+              </label>
+            </fieldset>
+          </form>
+        </section>
+
+        <section class="card" aria-labelledby="catTitle" id="catalogCard">
+          <header class="card__head">
+            <span class="step">02</span>
+            <h2 id="catTitle">Parts catalog</h2>
+            <span class="card__meta" id="catMeta"></span>
+          </header>
+
+          <div class="catalog__filters">
+            <label class="search">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/></svg>
+              <span class="sr-only">Search parts</span>
+              <input id="catSearch" type="search" placeholder="Search brand, model or description" autocomplete="off" />
+            </label>
+            <div class="select-wrap catalog__brand">
+              <label class="sr-only" for="brandFilter">Brand</label>
+              <select id="brandFilter"><option value="">All brands</option></select>
+            </div>
+          </div>
+          <div class="chips chips--scroll" id="typeChips" role="radiogroup" aria-label="Filter by category"></div>
+
+          <div class="catalog__table-wrap">
+            <table class="cat-table">
+              <thead>
+                <tr>
+                  <th scope="col">Brand · Model</th>
+                  <th scope="col">From</th>
+                  <th scope="col">Till</th>
+                  <th scope="col">Description</th>
+                  <th scope="col" class="num">ASIA value</th>
+                  <th scope="col" class="num">Of</th>
+                  <th scope="col"><span class="sr-only">Add</span></th>
+                </tr>
+              </thead>
+              <tbody id="catBody"></tbody>
+            </table>
+            <div class="catalog__empty" id="catEmpty" hidden></div>
+          </div>
+          <div class="catalog__foot">
+            <span id="catCount"></span>
+            <button class="btn btn--ghost btn--sm" type="button" id="catMore" hidden>Show more</button>
+          </div>
+        </section>
+      </div>
+
+      <!-- ============ RIGHT: SHEET ============ -->
+      <section class="col col--sheet card card--sheet" aria-labelledby="sheetTitle">
+        <header class="card__head">
+          <span class="step">03</span>
+          <h2 id="sheetTitle">Value sheet</h2>
+          <div class="card__tools">
+            <button class="btn btn--dark" type="button" id="downloadBtn">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
+              <span>Save as image</span>
+            </button>
+          </div>
+        </header>
+
+        <div id="sheetBody" class="sheet"></div>
+
+        <footer class="sheet__total">
+          <span>Total system value</span>
+          <strong id="sheetTotal">0</strong>
+        </footer>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-foot">
+    <p>Values come from the EMMA ASIA value database and can't be edited here. Your profile is saved in this browser only. Always confirm against the official EMMA rules before judging.</p>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <datalist id="carBrands"></datalist>
+
+  <script src="app.js"></script>
+</body>
+</html>
